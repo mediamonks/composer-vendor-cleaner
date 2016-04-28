@@ -104,8 +104,8 @@ class CleanCommand extends Command
 
                 if (!$dryRun) {
                     $fs->remove($file);
-                    $success++;
                 }
+                $success++;
             } catch (\Exception $e) {
                 $failed++;
                 $output->writeln(
@@ -215,7 +215,7 @@ class CleanCommand extends Command
         if (!empty($input->getOption(self::OPTION_DIR))) {
             $this->baseDir = $input->getOption(self::OPTION_DIR);
         } else {
-            $this->baseDir = realpath(__DIR__ . '/../../') . '/vendor/';
+            $this->baseDir = realpath(__DIR__ . '/../../../../../') . '/vendor/';
         }
     }
 
