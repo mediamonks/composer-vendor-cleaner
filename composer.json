@@ -1,7 +1,7 @@
 {
   "name": "mediamonks/composer-vendor-cleaner",
   "type": "library",
-  "description": "Removes as much as possibles from your vendor dir when space or number of files is important",
+  "description": "Removes as much as possible from your vendor dir when space or number of files is important",
   "keywords": [
     "composer",
     "vendor"
