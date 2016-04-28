@@ -1,0 +1,32 @@
+{
+  "excludes": {
+    "packages": [
+      "symfony\/polyfill-apcu",
+      "symfony\/polyfill-intl-icu",
+      "symfony\/polyfill-mbstring",
+      "symfony\/polyfill-php54",
+      "symfony\/polyfill-php55",
+      "symfony\/polyfill-php56",
+      "symfony\/polyfill-php70",
+      "symfony\/polyfill-util"
+    ]
+  },
+  "packages": {
+    "mediamonks\/composer-vendor-cleaner": {
+      "excludes": {
+        "files": [
+          "bin/clean",
+          "bin/clean.php",
+          "options.json"
+        ]
+      }
+    },
+    "mobiledetect\/mobiledetectlib": {
+      "excludes": {
+        "files": [
+          "Mobile_Detect.json"
+        ]
+      }
+    }
+  }
+}

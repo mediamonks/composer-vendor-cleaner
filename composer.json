@@ -1,0 +1,28 @@
+{
+  "name": "mediamonks/composer-vendor-cleaner",
+  "type": "library",
+  "description": "Removes as much as possibles from your vendor dir when space or number of files is important",
+  "keywords": [
+    "composer",
+    "vendor"
+  ],
+  "homepage": "https://www.mediamonks.com/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Robert Slootjes",
+      "email": "robert@mediamonks.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "symfony/finder": "^2.4",
+    "symfony/filesystem": "^2.4",
+    "symfony/console": "^2.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "MediaMonks\\ComposerVendorCleaner\\": "src"
+    }
+  }
+}
