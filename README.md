@@ -53,7 +53,7 @@ php vendor/mediamonks/composer-vendor-cleaner/bin/clean --dry-run
 You pass the location of a json file to set some options which can influence the cleaning process:
 
 ```
-php vendor/mediamonks/composer-vendor-cleaner/bin/clean --settings /path/to/options.json
+php vendor/mediamonks/composer-vendor-cleaner/bin/clean --options /path/to/options.json
 ```
 
 The current supported options are:
