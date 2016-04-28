@@ -8,11 +8,11 @@
 Sometimes there are still some unfortunate cases when you need to send your vendor dir to some place and you want it to go as fast as possible.
 This package provides a simple script which will try to remove as much stuff as possible without breaking your app.
 
-Don't forget to run ``composer install`` with ``--no-dev`` when creating a package for non-development environments, it will already save you loads space and files if you have packages defined in ``require-dev`!
+Don't forget to run ``composer install`` with ``--no-dev`` when creating a package for non-development environments, it will already save you loads space and files if you have packages defined in ``require-dev``!
 
 ## How it works
 
-The script simply reads all package dirs within the vendor dir (<vendor>/<package>) and removed files from that dir which are not used for running your project.
+The script simply reads all package dirs within the vendor dir (``<vendor>/<package>``) and removed files from that dir which are not used for running your project.
 For most packages this means it will remove docs and tests but also the composer files, licenses and readme's.
 
 Since not all packages can be cleaned the same way the ``type`` in ``composer.json`` of the package is used to determine the cleaning handler.
@@ -33,13 +33,19 @@ For all other types, removes all folders except the ones that are defined in the
 Clean up current vendor dir:
 
 ```
-php vendor/mediamonks/composer-vendor-cleaner/bin/clean.php
+php vendor/mediamonks/composer-vendor-cleaner/bin/clean
 ```
 
 Clean up specific vendor dir:
 
 ```
-php vendor/mediamonks/composer-vendor-cleaner/bin/clean.php --dir /path/to/vendor/
+php vendor/mediamonks/composer-vendor-cleaner/bin/clean --dir /path/to/different/vendor/
+```
+
+To just view what it will do without removing the actual files you can do a dry run:
+
+```
+php vendor/mediamonks/composer-vendor-cleaner/bin/clean --dry-run
 ```
 
 ## Options
@@ -47,12 +53,15 @@ php vendor/mediamonks/composer-vendor-cleaner/bin/clean.php --dir /path/to/vendo
 You pass the location of a json file to set some options which can influence the cleaning process:
 
 ```
-php vendor/mediamonks/composer-vendor-cleaner/bin/clean.php --settings /path/to/options.json
+php vendor/mediamonks/composer-vendor-cleaner/bin/clean --settings /path/to/options.json
 ```
 
-Currently these options are available:
+The current supported options are:
+- Excluding entire packages
+- Excluding specific dirs for a package
+- Excluding specific files for a package
 
--
+You can simply look at the provided ``options.json`` (_which is used by default_) to see how the options are defined.
 
 ## Disclaimer
 
