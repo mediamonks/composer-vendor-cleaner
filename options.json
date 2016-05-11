@@ -29,7 +29,7 @@
   "custom":
     [
       {
-        "_comment": "This removes all non-php files from the roots of the matching folders",
+        "_comment": "Removes all non-php files from the roots of the Symfony framework",
         "in": [
           "symfony/symfony/src/Symfony/Bridge/",
           "symfony/symfony/src/Symfony/Bundle/",
@@ -42,7 +42,7 @@
         "depth": "<= 1"
       },
       {
-        "_comment": "Will remove all unit test files from the Symfony",
+        "_comment": "Remove all unit test files from the Symfony framework",
         "in": [
           "symfony/symfony/src/Symfony/Bridge/*/Tests",
           "symfony/symfony/src/Symfony/Bundle/*/Tests",
@@ -71,20 +71,6 @@
           "*/*/features",
           "*/*/Tests",
           "*/*/examples"
-        ]
-      },
-      {
-        "_comment": "Remove some unused files from the Sonata project for Symfony",
-        "in": "sonata-project/core-bundle/Resources/public/vendor",
-        "name": [
-          "cheatsheet.html",
-          "tests.js",
-          "AUTHORS.*",
-          "README.*",
-          "composer.json",
-          "bower.json",
-          "package.json",
-          ".*"
         ]
       },
       {

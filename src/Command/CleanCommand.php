@@ -90,13 +90,13 @@ class CleanCommand extends Command
 
         $this->filesystem = new Filesystem();
 
-        /*foreach ($this->getPackages($output) as $package) {
+        foreach ($this->getPackages($output) as $package) {
             if($this->isExcludedPackage($package->getName())) {
                 $output->writeln(sprintf('Skipping package "%s"', $package->getName()));
                 continue;
             }
             $this->cleanPackage($package, $output);
-        }*/
+        }
 
         $this->cleanCustom($output);
 
