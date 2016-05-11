@@ -25,5 +25,76 @@
         ]
       }
     }
-  }
+  },
+  "custom":
+    [
+      {
+        "_comment": "This removes all non-php files from the roots of the matching folders",
+        "in": [
+          "symfony/symfony/src/Symfony/Bridge/",
+          "symfony/symfony/src/Symfony/Bundle/",
+          "symfony/symfony/src/Symfony/Component/",
+          "symfony/polyfill-*",
+          "symfony/*-bridge"
+        ],
+        "type": "files",
+        "notName": ["*.php"],
+        "depth": "<= 1"
+      },
+      {
+        "_comment": "Will remove all unit test files from the Symfony",
+        "in": [
+          "symfony/symfony/src/Symfony/Bridge/*/Tests",
+          "symfony/symfony/src/Symfony/Bundle/*/Tests",
+          "symfony/symfony/src/Symfony/Component/*/Tests"
+        ]
+      },
+      {
+        "_comment": "Remove all non php and json files from the testing frameworks",
+        "in": [
+          "behat/*",
+          "phpunit/*",
+          "mockery/*"
+        ],
+        "type": "files",
+        "notName": ["*.php", "*.json"],
+        "depth": "<= 2"
+      },
+      {
+        "_comment": "Remove all folders which are famous for containing stuff we do not need",
+        "in": [
+          "*/*/doc",
+          "*/*/docs",
+          "*/*/tests",
+          "*/*/testapp",
+          "*/*/spec",
+          "*/*/features",
+          "*/*/Tests",
+          "*/*/examples"
+        ]
+      },
+      {
+        "_comment": "Remove some unused files from the Sonata project for Symfony",
+        "in": "sonata-project/core-bundle/Resources/public/vendor",
+        "name": [
+          "cheatsheet.html",
+          "tests.js",
+          "AUTHORS.*",
+          "README.*",
+          "composer.json",
+          "bower.json",
+          "package.json",
+          ".*"
+        ]
+      },
+      {
+        "_comment": "Remove all executables and git files which can get quite large",
+        "in": "",
+        "name": ["*.exe", "*.pack", "*.idx"]
+      },
+      {
+        "_comment": "Remove custom installed composer, it's usually only used for code completion in the IDE",
+        "in": ["composer/composer", "composer/semver", "composer/spdx-licenses"]
+      }
+    ]
 }

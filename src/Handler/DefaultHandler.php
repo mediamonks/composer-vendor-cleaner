@@ -31,6 +31,11 @@ class DefaultHandler extends AbstractHandler implements HandlerInterface
             $psrMapped += $autoloadData['psr-0'];
         }
         if (isset($autoloadData['psr-4'])) {
+            foreach($autoloadData['psr-4'] as $namespace => $dir) {
+                if(empty($dir)) {
+                    return $this->getFilesFromDir();
+                }
+            }
             $psrMapped += $autoloadData['psr-4'];
         }
         if (isset($autoloadData['classmap'])) {

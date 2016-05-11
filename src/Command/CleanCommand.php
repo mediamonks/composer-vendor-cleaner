@@ -36,6 +36,16 @@ class CleanCommand extends Command
     protected $files = [];
 
     /**
+     * @var bool
+     */
+    protected $dryRun = false;
+
+    /**
+     * @var Filesystem
+     */
+    protected $filesystem;
+
+    /**
      *
      */
     protected function configure()
@@ -72,14 +82,26 @@ class CleanCommand extends Command
         $this->setBaseDir($input);
         $this->setOptions($input);
 
-        foreach ($this->getPackages($output) as $package) {
+        if (!empty($input->getOption(self::OPTION_DRY_RUN))) {
+            $this->dryRun = true;
+            $output->writeln('<info>---- Dryrun only, no files will be deleted ---</info>');
+            sleep(1);
+        }
+
+        $this->filesystem = new Filesystem();
+
+        /*foreach ($this->getPackages($output) as $package) {
             if($this->isExcludedPackage($package->getName())) {
                 $output->writeln(sprintf('Skipping package "%s"', $package->getName()));
                 continue;
             }
             $this->cleanPackage($package, $output);
-        }
-        $this->removeFiles($input, $output);
+        }*/
+
+        $this->cleanCustom($output);
+
+        $this->removeFiles($output);
+        $this->removeEmptyDirs($output);
     }
 
     /**
@@ -88,8 +110,8 @@ class CleanCommand extends Command
      */
     protected function isExcludedPackage($packageName)
     {
-        foreach($this->options['excludes']['packages'] as $exclude) {
-            if(preg_match(sprintf('~%s~', $exclude), $packageName)) {
+        foreach ($this->options['excludes']['packages'] as $exclude) {
+            if (preg_match(sprintf('~%s~', $exclude), $packageName)) {
                 return true;
             }
         }
@@ -97,26 +119,17 @@ class CleanCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
      * @param OutputInterface $output
      */
-    protected function removeFiles(InputInterface $input, OutputInterface $output)
+    protected function removeFiles(OutputInterface $output)
     {
-        $dryRun = false;
-        if (!empty($input->getOption(self::OPTION_DRY_RUN))) {
-            $dryRun = true;
-            $output->writeln('<info>Dryrun only, no files will be deleted.</info>');
-            sleep(1);
-        }
-
-        $fs      = new Filesystem();
         $success = 0;
         $failed  = 0;
         foreach ($this->files as $file) {
             try {
                 $output->writeln(sprintf('Removing file "%s"', $file), OutputInterface::VERBOSITY_NORMAL);
-                if (!$dryRun) {
-                    $fs->remove($file);
+                if (!$this->dryRun) {
+                    $this->filesystem->remove($file);
                 }
                 $success++;
             } catch (\Exception $e) {
@@ -135,6 +148,48 @@ class CleanCommand extends Command
 
         if ($failed > 0) {
             $output->writeln(sprintf('<error>%d files could not be removed</error>', $failed),
+                OutputInterface::VERBOSITY_NORMAL);
+        }
+    }
+
+    /**
+     * @param OutputInterface $output
+     */
+    protected function removeEmptyDirs(OutputInterface $output)
+    {
+        $success = 0;
+        $failed  = 0;
+
+        $finder = new Finder();
+        $finder->in($this->baseDir)->directories();
+        foreach (iterator_to_array($finder, false) as $dir) {
+            $isDirEmpty = !(new \FilesystemIterator($dir))->valid();
+            if ($isDirEmpty) {
+                try {
+                    $output->writeln(sprintf('Removing directory "%s"', $dir->getRealPath()),
+                        OutputInterface::VERBOSITY_NORMAL);
+                    if (!$this->dryRun) {
+                        $this->filesystem->remove($dir->getRealPath());
+                    }
+                    $success++;
+                } catch (\Exception $e) {
+                    $failed++;
+                    $output->writeln(
+                        sprintf('<error>Error removing directory "%s": "$s"</error>', $dir->getRealPath(),
+                            $e->getMessage()),
+                        OutputInterface::VERBOSITY_NORMAL
+                    );
+                }
+            }
+        }
+
+        if ($success > 0) {
+            $output->writeln(sprintf('<info>Removed a total of %d directories</info>', $success),
+                OutputInterface::VERBOSITY_NORMAL);
+        }
+
+        if ($failed > 0) {
+            $output->writeln(sprintf('<error>%d directories could not be removed</error>', $failed),
                 OutputInterface::VERBOSITY_NORMAL);
         }
     }
@@ -161,6 +216,73 @@ class CleanCommand extends Command
                 OutputInterface::OUTPUT_NORMAL);
             foreach ($files as $file) {
                 $this->files[] = $file;
+            }
+        }
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @return void
+     */
+    protected function cleanCustom(OutputInterface $output)
+    {
+        if (empty($this->options['custom'])) {
+            return;
+        }
+        foreach ($this->options['custom'] as $options) {
+            try {
+                $finder = new Finder();
+                $finder->ignoreDotFiles(false);
+                $finder->ignoreVCS(false);
+
+                $in = [];
+                if (!is_array($options['in'])) {
+                    $options['in'] = [$options['in']];
+                }
+                foreach ($options['in'] as $dir) {
+                    $in[] = $this->baseDir . $dir;
+                }
+                $finder->in($in);
+
+                if (!empty($options['type'])) {
+                    switch ($options['type']) {
+                        case 'files':
+                            $finder->files();
+                            break;
+                        case 'dirs':
+                        case 'directories':
+                            $finder->directories();
+                            break;
+                    }
+                }
+
+                if (!empty($options['notName'])) {
+                    if (!is_array($options['notName'])) {
+                        $options['notName'] = [$options['notName']];
+                    }
+                    foreach ($options['notName'] as $notName) {
+                        $finder->notName($notName);
+                    }
+                }
+
+                if (!empty($options['name'])) {
+                    if (!is_array($options['name'])) {
+                        $options['name'] = [$options['name']];
+                    }
+                    foreach ($options['name'] as $notName) {
+                        $finder->name($notName);
+                    }
+                }
+
+                if (!empty($options['depth'])) {
+                    $finder->depth($options['depth']);
+                }
+
+                foreach ($finder as $file) {
+                    $this->files[] = $file->getRealPath();
+                }
+            } catch (\Exception $e) {
+                // ignore errors
             }
         }
     }
@@ -199,7 +321,7 @@ class CleanCommand extends Command
                     break;
                 }
                 if (empty($composerJson)) {
-                    $output->writeln(sprintf('Could not find matching composer.json in  %s',
+                    $output->writeln(sprintf('Could not find matching "composer.json" in %s',
                         $vendorDir . '/' . $packageDir), OutputInterface::OUTPUT_NORMAL);
                     // no matching composer.json was found, we skip this dir
                     continue;
