@@ -73,13 +73,27 @@ class CleanCommand extends Command
         $this->setOptions($input);
 
         foreach ($this->getPackages($output) as $package) {
-            if (in_array($package->getName(), $this->options['excludes']['packages'])) {
+            if($this->isExcludedPackage($package->getName())) {
+                $output->writeln(sprintf('Skipping package "%s"', $package->getName()));
                 continue;
             }
             $this->cleanPackage($package, $output);
         }
-
         $this->removeFiles($input, $output);
+    }
+
+    /**
+     * @param $packageName
+     * @return bool
+     */
+    protected function isExcludedPackage($packageName)
+    {
+        foreach($this->options['excludes']['packages'] as $exclude) {
+            if(preg_match(sprintf('~%s~', $exclude), $packageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -101,7 +115,6 @@ class CleanCommand extends Command
         foreach ($this->files as $file) {
             try {
                 $output->writeln(sprintf('Removing file "%s"', $file), OutputInterface::VERBOSITY_NORMAL);
-
                 if (!$dryRun) {
                     $fs->remove($file);
                 }
@@ -132,11 +145,6 @@ class CleanCommand extends Command
      */
     protected function cleanPackage(Package $package, OutputInterface $output)
     {
-        // skip entire package?
-        if (in_array($package->getName(), $this->options['excludes']['packages'])) {
-            return;
-        }
-
         $options = [];
         if (isset($this->options['packages'][$package->getName()]['excludes'])) {
             $options['excludes'] = $this->options['packages'][$package->getName()]['excludes'];

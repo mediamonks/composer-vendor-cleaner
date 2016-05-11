@@ -65,7 +65,7 @@ You can simply look at the provided ``options.json`` (_which is used by default_
 
 ## Disclaimer
 
-This script is not tested extensively yet so use at your own risk
+This script is under development and is not tested extensively yet so use at your own risk!
 
 ## We can use your help!
 

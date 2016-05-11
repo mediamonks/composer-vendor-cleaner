@@ -4,6 +4,7 @@ namespace MediaMonks\ComposerVendorCleaner\Handler;
 
 use MediaMonks\ComposerVendorCleaner\Model\Package;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 abstract class AbstractHandler
 {
@@ -52,19 +53,54 @@ abstract class AbstractHandler
 
     /**
      * @param array $excludeDirs
+     * @param array $excludeFiles
      * @return array
      */
-    public function getFilesWithExcludes($excludeDirs)
+    protected function getFilesWithExcludes($excludeDirs, $excludeFiles = [])
     {
+        $excludeFiles = array_merge($this->getExcludedFiles(), $excludeFiles);
+
         $files = [];
         $finder = new Finder();
         $finder->in($this->package->getDir())->exclude($excludeDirs)->ignoreVCS(false)->ignoreDotFiles(false);
         foreach (iterator_to_array($finder, false) as $file) {
-            if (in_array($file->getRelativePathname(), $this->getExcludedFiles())) {
+            if (in_array($file->getRelativePathname(), $excludeFiles)) {
+                continue;
+            }
+            if($this->shouldIgnore($file)) {
                 continue;
             }
             $files[] = $file->getRealPath();
         }
         return $files;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getFilesFromDir()
+    {
+        $files = [];
+        $finder = new Finder();
+        $finder->in($this->package->getDir())->ignoreVCS(false)->ignoreDotFiles(false)->files();
+        foreach (iterator_to_array($finder, false) as $file) {
+            if($this->shouldIgnore($file)) {
+                continue;
+            }
+            $files[] = $file->getRealPath();
+        }
+        return $files;
+    }
+
+    /**
+     * @param SplFileInfo $file
+     * @return bool
+     */
+    protected function shouldIgnore(SplFileInfo $file)
+    {
+        if($file->getExtension() === 'php') {
+            return true;
+        }
+        return false;
     }
 }

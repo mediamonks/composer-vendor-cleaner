@@ -10,35 +10,54 @@ class DefaultHandler extends AbstractHandler implements HandlerInterface
     public function getFilesToRemove()
     {
         // get excludes from autoload mapping
-        $autoloadData = $this->package->getAutoload();
+        $excludeDirs  = [];
+        $excludeFiles = [];
         $psrMapped    = [];
+
+        if(isset($this->options['excludes']['dirs'])) {
+            $excludeDirs = $this->options['excludes']['dirs'];
+        }
+        if(isset($this->options['excludes']['files'])) {
+            $excludeFiles = $this->options['excludes']['files'];
+        }
+
+        $autoloadData = $this->package->getAutoload();
         if (isset($autoloadData['psr-0'])) {
+            foreach($autoloadData['psr-0'] as $namespace => $dir) {
+                if(empty($dir)) {
+                    return $this->getFilesFromDir();
+                }
+            }
             $psrMapped += $autoloadData['psr-0'];
         }
         if (isset($autoloadData['psr-4'])) {
             $psrMapped += $autoloadData['psr-4'];
         }
         if (isset($autoloadData['classmap'])) {
-            $psrMapped += $autoloadData['classmap'];
+            $psrMapped += $autoloadData['classmap']; // @todo check if we use this correctly
         }
         if (isset($autoloadData['files'])) {
-            $psrMapped += $autoloadData['files'];
+            $excludeFiles = array_merge($excludeFiles, $autoloadData['files']);
+            // add the entire directory of the loader to the exclude dir,
+            // there are quite some packages which use the same dir for storing the source files too
+            foreach ($autoloadData['files'] as $file) {
+                $excludeDirs[] = dirname($file);
+            }
         }
 
-        $excludeDirs = [];
-        foreach ($psrMapped as $namespace => $folders) {
-            if (!is_array($folders)) {
-                $folders = [$folders];
+        foreach ($psrMapped as $namespace => $dirs) {
+            if (!is_array($dirs)) {
+                $dirs = [$dirs];
             }
-            foreach ($folders as $folder) {
-                $folderKeep = current(explode('/', $folder));
-                if (in_array($folderKeep, $excludeDirs)) {
+            foreach ($dirs as $dir) {
+                $keepDir = current(explode('/', $dir));
+                if (in_array($keepDir, $excludeDirs)) {
                     continue;
                 }
-                $excludeDirs[] = $folderKeep;
+                $excludeDirs[] = $keepDir;
             }
         }
 
-        return $this->getFilesWithExcludes($excludeDirs);
+        return $this->getFilesWithExcludes($excludeDirs, $excludeFiles);
     }
 }
