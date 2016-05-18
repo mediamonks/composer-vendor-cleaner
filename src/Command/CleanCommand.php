@@ -91,7 +91,7 @@ class CleanCommand extends Command
         $this->filesystem = new Filesystem();
 
         foreach ($this->getPackages($output) as $package) {
-            if($this->isExcludedPackage($package->getName())) {
+            if ($this->isExcludedPackage($package->getName())) {
                 $output->writeln(sprintf('Skipping package "%s"', $package->getName()));
                 continue;
             }
@@ -365,9 +365,11 @@ class CleanCommand extends Command
             $options = $this->parseJsonFromFile($options);
         } else {
             $options = @json_decode($options, true);
-            if (!is_array($options)) {
-                throw new \Exception('Options file does not exist or is an invalid json string');
-            }
+        }
+
+        if (!is_array($options)) {
+            throw new \Exception(sprintf(
+                'Options could not be parsed as it does not appear to be valid json: %s', json_last_error_msg()));
         }
 
         $this->options = $options;
