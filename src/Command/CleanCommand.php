@@ -234,6 +234,7 @@ class CleanCommand extends Command
                 $finder = new Finder();
                 $finder->ignoreDotFiles(false);
                 $finder->ignoreVCS(false);
+                $finder->ignoreUnreadableDirs(true);
 
                 $in = [];
                 if (!is_array($options['in'])) {

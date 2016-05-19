@@ -29,6 +29,12 @@
   "custom":
     [
       {
+        "_comment": "Remove all unit test files and non used Resources from Symfony components",
+        "in": [
+          "symfony/*/Tests"
+        ]
+      },
+      {
         "_comment": "Removes all non-php files from the roots of the Symfony framework",
         "in": [
           "symfony/symfony/src/Symfony/Bridge/",
