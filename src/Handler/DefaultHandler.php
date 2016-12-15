@@ -10,30 +10,23 @@ class DefaultHandler extends AbstractHandler implements HandlerInterface
     public function getFilesToRemove()
     {
         // get excludes from autoload mapping
-        $excludeDirs  = [];
-        $excludeFiles = [];
         $psrMapped    = [];
-
-        if(isset($this->options['excludes']['dirs'])) {
-            $excludeDirs = $this->options['excludes']['dirs'];
-        }
-        if(isset($this->options['excludes']['files'])) {
-            $excludeFiles = $this->options['excludes']['files'];
-        }
-
+        $excludeDirs  = $this->getExcludedDirs();
+        $excludeFiles = $this->getExcludedFiles();
         $autoloadData = $this->package->getAutoload();
+
         if (isset($autoloadData['psr-0'])) {
-            foreach($autoloadData['psr-0'] as $namespace => $dir) {
-                if(empty($dir)) {
-                    return $this->getFilesFromDir();
+            foreach ($autoloadData['psr-0'] as $namespace => $dir) {
+                if (empty($dir)) {
+                    return $this->getFilesWithExcludes($excludeDirs, $excludeFiles, true);
                 }
             }
             $psrMapped += $autoloadData['psr-0'];
         }
         if (isset($autoloadData['psr-4'])) {
-            foreach($autoloadData['psr-4'] as $namespace => $dir) {
-                if(empty($dir)) {
-                    return $this->getFilesFromDir();
+            foreach ($autoloadData['psr-4'] as $namespace => $dir) {
+                if (empty($dir)) {
+                    return $this->getFilesWithExcludes($excludeDirs, $excludeFiles, true);
                 }
             }
             $psrMapped += $autoloadData['psr-4'];
